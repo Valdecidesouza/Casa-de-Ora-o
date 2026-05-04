@@ -2,7 +2,8 @@ import {
   createRelatorio,
   deleteRelatorio,
   listRelatorios,
-  updateRelatorio
+  updateRelatorio,
+  deleteAllRelatorios // 🔥 NOVO
 } from './_lib/database.js';
 
 import {
@@ -31,51 +32,48 @@ export default async function handler(req, res) {
       return;
     }
 
-    // 🟢 CRIAR
+    // ✏️ CRIAR OU EDITAR
     if (req.method === 'POST') {
       const body = await readJsonBody(req);
-      const relatorio = await createRelatorio(body);
 
-      sendJson(res, 201, { relatorio });
-      return;
-    }
+      let relatorio;
 
-    // ✏️ EDITAR (NOVO)
-    if (req.method === 'PUT') {
-      const url = getRequestUrl(req);
-      const id = url.searchParams.get('id');
-
-      if (!id) {
-        sendJson(res, 400, { error: 'Informe o id do relatório.' });
-        return;
+      if (body.id) {
+        // 🔥 EDITAR
+        relatorio = await updateRelatorio(body.id, body);
+      } else {
+        // 🔥 CRIAR
+        relatorio = await createRelatorio(body);
       }
-
-      const body = await readJsonBody(req);
-      const relatorio = await updateRelatorio(id, body);
 
       sendJson(res, 200, { relatorio });
       return;
     }
 
-    // 🗑 APAGAR
+    // 🗑 APAGAR (1 OU TODOS)
     if (req.method === 'DELETE') {
       const url = getRequestUrl(req);
       const id = url.searchParams.get('id');
 
+      // 🔥 SEM ID = APAGA TUDO
       if (!id) {
-        sendJson(res, 400, { error: 'Informe o id do relatório.' });
+        await deleteAllRelatorios();
+        sendJson(res, 200, { ok: true, all: true });
         return;
       }
 
+      // 🔥 COM ID = APAGA UM
       await deleteRelatorio(id);
       sendJson(res, 200, { ok: true });
       return;
     }
 
-    sendMethodNotAllowed(res, ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
+    sendMethodNotAllowed(res, ['GET', 'POST', 'DELETE', 'OPTIONS']);
 
   } catch (error) {
-    const statusCode = /não permitido|informe|selecione|apenas/i.test(String(error.message)) ? 400 : 500;
+    const statusCode = /não permitido|informe|selecione|apenas/i.test(String(error.message))
+      ? 400
+      : 500;
 
     sendJson(res, statusCode, {
       error: error.message || 'Erro interno ao processar relatórios.'

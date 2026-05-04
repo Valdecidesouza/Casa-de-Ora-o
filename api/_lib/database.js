@@ -242,6 +242,8 @@ export async function migrateLegacyData(payload) {
     relatorios: await listRelatorios(),
   };
 }
+
+// 🔥 EDITAR RELATÓRIO
 export async function updateRelatorio(id, input) {
   await ensureSchema();
   const db = await ensureClient();
@@ -279,4 +281,12 @@ export async function updateRelatorio(id, input) {
   });
 
   return relatorio;
+}
+
+// 🔥🔥 APAGAR TODOS OS RELATÓRIOS (NOVO)
+export async function deleteAllRelatorios() {
+  await ensureSchema();
+  const db = await ensureClient();
+
+  await db.execute('DELETE FROM relatorios');
 }
