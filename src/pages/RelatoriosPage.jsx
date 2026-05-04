@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Trash2, Search, Filter, ChevronDown, AlertTriangle } from 'lucide-react';
-import { GRUPOS, formatDate, getSemanas } from '../store/data';
 import { listLideres, listRelatorios, removeRelatorio } from '../store/api';
+import { formatDate, getSemanas } from '../store/data';
 
 export default function RelatoriosPage() {
 
@@ -9,133 +8,139 @@ export default function RelatoriosPage() {
   const [lideres, setLideres] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [semana, setSemana] = useState('');
-  const [grupo, setGrupo] = useState('');
-  const [lider, setLider] = useState('');
+
   const [busca, setBusca] = useState('');
 
-  // ✅ FUNÇÃO CERTA DE APAGAR (SÓ UMA)
+  // 🔥 NOVO: edição
+  const [editando, setEditando] = useState(null);
+
+  // 🔥 DELETE
   async function handleDelete(id) {
-    const confirmar = confirm('Remover este relatório?');
-    if (!confirmar) return;
+    const ok = confirm('Remover?');
+    if (!ok) return;
 
-    try {
-      await removeRelatorio(id);
+    await removeRelatorio(id);
 
-      // remove da tela sem recarregar
-      setRelatorios(current =>
-        current.filter(relatorio => relatorio.id !== id)
-      );
+    setRelatorios(r => r.filter(item => item.id !== id));
+  }
 
-    } catch (error) {
-      alert('Erro ao apagar');
-    }
+  // 🔥 LIMPAR TUDO
+  async function limparTudo() {
+    const ok = confirm("APAGAR TODOS?");
+    if (!ok) return;
+
+    await fetch('/api/relatorios/all', { method: 'DELETE' });
+
+    setRelatorios([]);
   }
 
   useEffect(() => {
-    let active = true;
-
     (async () => {
       try {
-        setLoading(true);
-        const [relatoriosData, lideresData] = await Promise.all([
+        const [r, l] = await Promise.all([
           listRelatorios(),
           listLideres()
         ]);
 
-        if (!active) return;
+        setRelatorios(r);
+        setLideres(l);
 
-        setRelatorios(relatoriosData);
-        setLideres(lideresData);
-
-      } catch (error) {
-        if (active) setError('Erro ao carregar dados');
+      } catch {
+        setError('Erro');
       } finally {
-        if (active) setLoading(false);
+        setLoading(false);
       }
     })();
-
-    return () => {
-      active = false;
-    };
   }, []);
 
-  const semanas = useMemo(() => getSemanas(relatorios), [relatorios]);
-
   const filtrados = useMemo(() => {
-    return relatorios
-      .filter(relatorio => {
-        if (semana && relatorio.semana !== semana) return false;
-        if (grupo && relatorio.grupo !== grupo) return false;
-        if (lider && relatorio.lider !== lider) return false;
+    return relatorios.filter(r =>
+      r.lider?.toLowerCase().includes(busca.toLowerCase())
+    );
+  }, [relatorios, busca]);
 
-        if (busca) {
-          const q = busca.toLowerCase();
-          if (
-            !relatorio.local?.toLowerCase().includes(q) &&
-            !relatorio.nucleo?.toLowerCase().includes(q) &&
-            !relatorio.lider?.toLowerCase().includes(q) &&
-            !relatorio.grupo?.toLowerCase().includes(q)
-          ) return false;
-        }
-
-        return true;
-      })
-      .sort((a, b) => b.data.localeCompare(a.data));
-  }, [relatorios, semana, grupo, lider, busca]);
-
-  function clearFilters() {
-    setSemana('');
-    setGrupo('');
-    setLider('');
-    setBusca('');
-  }
-
-  const hasFilters = semana || grupo || lider || busca;
-
-  if (loading) {
-    return <div className="text-center py-10">Carregando...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
-  }
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <div className="p-4 max-w-3xl mx-auto">
+    <div className="p-4">
 
-      <h1 className="font-bold mb-2">Relatórios ({filtrados.length})</h1>
+      <h1>Relatórios ({filtrados.length})</h1>
 
       <input
         placeholder="Buscar..."
         value={busca}
         onChange={e => setBusca(e.target.value)}
-        className="input mb-3"
       />
 
-      {hasFilters && (
-        <button onClick={clearFilters}>
-          Limpar filtros
-        </button>
-      )}
+      {/* 🔥 BOTÃO LIMPAR TUDO */}
+      <button onClick={limparTudo} className="ml-2 text-red-600">
+        🧹 Limpar tudo
+      </button>
 
       {filtrados.map(relatorio => (
-        <div key={relatorio.id} className="border p-3 mb-2 rounded">
+        <div key={relatorio.id} className="border p-3 mt-2">
 
           <p><b>{relatorio.lider}</b></p>
           <p>{relatorio.grupo}</p>
           <p>{formatDate(relatorio.data)}</p>
 
-          {/* ✅ BOTÃO APAGAR FUNCIONANDO */}
+          {/* 🔥 EDITAR */}
+          <button onClick={() => setEditando(relatorio)}>
+            ✏️ Editar
+          </button>
+
+          {/* 🔥 APAGAR */}
           <button
             onClick={() => handleDelete(relatorio.id)}
-            className="text-red-500 mt-2"
+            className="text-red-500 ml-2"
           >
-            🗑 Apagar
+            🗑
           </button>
 
         </div>
       ))}
+
+      {/* 🔥 MODAL EDITAR */}
+      {editando && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+
+          <div className="bg-white p-4">
+
+            <h2>Editar</h2>
+
+            <input
+              value={editando.lider}
+              onChange={e =>
+                setEditando({ ...editando, lider: e.target.value })
+              }
+            />
+
+            <br />
+
+            <button
+              onClick={async () => {
+
+                await fetch('/api/relatorios', {
+                  method: 'POST',
+                  body: JSON.stringify(editando)
+                });
+
+                setEditando(null);
+                window.location.reload();
+              }}
+            >
+              Salvar
+            </button>
+
+            <button onClick={() => setEditando(null)}>
+              Cancelar
+            </button>
+
+          </div>
+
+        </div>
+      )}
 
     </div>
   );

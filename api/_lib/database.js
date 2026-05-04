@@ -242,3 +242,41 @@ export async function migrateLegacyData(payload) {
     relatorios: await listRelatorios(),
   };
 }
+export async function updateRelatorio(id, input) {
+  await ensureSchema();
+  const db = await ensureClient();
+
+  const relatorio = normalizeRelatorioInput({ ...input, id });
+
+  await db.execute({
+    sql: `
+      UPDATE relatorios SET
+        data = ?,
+        semana = ?,
+        dia_semana = ?,
+        grupo = ?,
+        lider = ?,
+        nucleo = ?,
+        local = ?,
+        voluntarios = ?,
+        total_participantes = ?,
+        total_igreja = ?
+      WHERE id = ?
+    `,
+    args: [
+      relatorio.data,
+      relatorio.semana,
+      relatorio.diaSemana,
+      relatorio.grupo,
+      relatorio.lider,
+      relatorio.nucleo,
+      relatorio.local,
+      relatorio.voluntarios,
+      relatorio.totalParticipantes,
+      relatorio.totalIgreja,
+      id,
+    ],
+  });
+
+  return relatorio;
+}
