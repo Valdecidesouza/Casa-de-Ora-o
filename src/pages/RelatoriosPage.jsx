@@ -53,13 +53,14 @@ export default function RelatoriosPage() {
     })();
   }, []);
 
-  const filtrados = useMemo(() => {
-    return relatorios.filter(r =>
-      r.lider?.toLowerCase().includes(busca.toLowerCase())
-    );
-  }, [relatorios, busca]);
+ const filtrados = useMemo(() => {
+  const buscaLower = busca.toLowerCase();
 
-  if (loading) return <div>Carregando...</div>;
+  return relatorios.filter(r =>
+    r.lider?.toLowerCase().includes(buscaLower)
+  );
+}, [relatorios, busca]);
+  if (loading) return <div>⏳ Carregando...</div>;
   if (error) return <div>{error}</div>;
 
   return (
@@ -127,7 +128,7 @@ export default function RelatoriosPage() {
                 });
 
                 setEditando(null);
-                window.location.reload();
+            
               }}
             >
               Salvar
