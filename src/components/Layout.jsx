@@ -14,7 +14,7 @@ export default function Layout() {
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
         <div className="w-full px-4 py-5 flex items-center gap-4">
-          <img src={logo} alt="logo" className="h-24 w-24 object-contain" />          
+          <img src={logo} alt="logo" className="h-32 w-32 object-contain" />          
           <div>
             <div className="flex flex-col leading-tight">
   <h1 className="text-lg font-extrabold text-gray-800 tracking-tight">
