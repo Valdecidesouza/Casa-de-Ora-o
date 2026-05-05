@@ -10,21 +10,34 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 export default function App() {
 
+  // 🔐 estado de login
   const [logado, setLogado] = useState(
     localStorage.getItem('logado') === 'true'
   );
 
-  // 🚫 NÃO LOGADO → MOSTRA LOGIN
-  if (!logado) {
-    return <LoginPage onLogin={() => setLogado(true)} />;
+  // ✅ quando loga
+  function handleLogin() {
+    localStorage.setItem('logado', 'true');
+    setLogado(true);
   }
 
-  // ✅ LOGADO → ENTRA NO SISTEMA
+  // 🚪 quando sai
+  function handleLogout() {
+    localStorage.removeItem('logado');
+    setLogado(false);
+  }
+
+  // 🚫 NÃO LOGADO → LOGIN
+  if (!logado) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // ✅ LOGADO → SISTEMA
   return (
     <BrowserRouter>
       <Routes>
 
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<Layout onLogout={handleLogout} />}>
           <Route index element={<DashboardPage />} />
           <Route path="novo" element={<FormPage />} />
           <Route path="relatorios" element={<RelatoriosPage />} />

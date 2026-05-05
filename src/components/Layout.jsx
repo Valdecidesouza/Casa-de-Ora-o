@@ -8,25 +8,19 @@ const nav = [
   { to: '/relatorios', label: 'Relatórios', Icon: ClipboardList },
 ];
 
-export default function Layout() {
-
-  // 🔥 FUNÇÃO SAIR
-  function sair() {
-    localStorage.removeItem('logado');
-    window.location.reload();
-  }
+export default function Layout({ onLogout }) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
 
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="w-full px-6 py-6 flex items-center justify-between">
-
+        <div className="w-full px-6 py-6 flex items-center justify-between"> 
+       
           {/* 🔥 ESQUERDA (LOGO + TEXTO) */}
           <div className="flex items-center gap-5">
 
-            <img src={logo} alt="logo" className="h-24 w-24 object-contain" />
+            <img src={logo} alt="logo" className="h-20 w-20 object-contain" />
 
             <div className="flex flex-col leading-tight">
               <h1 className="text-xl font-extrabold text-gray-800 tracking-tight">
@@ -40,9 +34,9 @@ export default function Layout() {
 
           </div>
 
-          {/* 🔥 DIREITA (BOTÃO SAIR) */}
+          {/* 🔥 DIREITA (BOTÃO SAIR CORRETO) */}
           <button
-            onClick={sair}
+            onClick={onLogout}
             className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700"
           >
             <LogOut size={18} />
