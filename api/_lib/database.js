@@ -69,7 +69,7 @@ async function ensureSchema() {
         grupo TEXT NOT NULL,
         lider TEXT NOT NULL,
         nucleo TEXT NOT NULL,
-        local TEXT NOT NULL,
+        local TEXT,
         voluntarios INTEGER NOT NULL,
         total_participantes INTEGER NOT NULL,
         total_igreja INTEGER NOT NULL,
@@ -101,20 +101,21 @@ function toInteger(value, fieldName) {
   return Math.trunc(parsed);
 }
 
+// 🔥 CORRIGIDO AQUI
 function normalizeRelatorioInput(input) {
   const data = normalizarTexto(input.data);
   const grupo = normalizarTexto(input.grupo);
   const lider = normalizarTexto(input.lider);
   const nucleo = normalizarTexto(input.nucleo);
-  const local = normalizarTexto(input.local);
+
+  // ✅ APENAS UMA VEZ
+  const local = normalizarTexto(input.local) || '';
 
   if (!data) throw new Error('Informe a data.');
   if (!isAllowedDay(data)) throw new Error('Envios apenas de terça a sábado.');
   if (!grupo) throw new Error('Selecione o grupo.');
   if (!lider) throw new Error('Informe o nome do líder.');
   if (!nucleo) throw new Error('Informe o núcleo.');
-  // 🔥 LOCAL OPCIONAL
-const local = normalizarTexto(input.local) || '';
 
   return {
     id: normalizarTexto(input.id) || randomUUID(),
@@ -188,6 +189,7 @@ export async function createRelatorio(input, options = {}) {
   const relatorio = normalizeRelatorioInput(input);
 
   await saveLider(relatorio.lider);
+
   await db.execute({
     sql: options.ignoreExisting
       ? `INSERT OR IGNORE INTO relatorios (
@@ -244,7 +246,6 @@ export async function migrateLegacyData(payload) {
   };
 }
 
-// 🔥 EDITAR RELATÓRIO
 export async function updateRelatorio(id, input) {
   await ensureSchema();
   const db = await ensureClient();
@@ -284,10 +285,8 @@ export async function updateRelatorio(id, input) {
   return relatorio;
 }
 
-// 🔥🔥 APAGAR TODOS OS RELATÓRIOS (NOVO)
 export async function deleteAllRelatorios() {
   await ensureSchema();
   const db = await ensureClient();
-
   await db.execute('DELETE FROM relatorios');
 }
