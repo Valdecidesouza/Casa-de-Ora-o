@@ -113,7 +113,8 @@ function normalizeRelatorioInput(input) {
   if (!grupo) throw new Error('Selecione o grupo.');
   if (!lider) throw new Error('Informe o nome do líder.');
   if (!nucleo) throw new Error('Informe o núcleo.');
-  if (!local) throw new Error('Informe o local.');
+  // 🔥 LOCAL OPCIONAL
+const local = normalizarTexto(input.local) || '';
 
   return {
     id: normalizarTexto(input.id) || randomUUID(),
