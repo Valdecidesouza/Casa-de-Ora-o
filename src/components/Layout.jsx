@@ -13,12 +13,18 @@ export default function Layout() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-          <img src={logo} alt="logo" className="h-8 w-8 object-contain" />          
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
+          <img src={logo} alt="logo" className="h-12 w-12 object-contain" />          
           <div>
-            <h1 className="text-sm font-bold text-gray-800 leading-tight">Núcleos de Oração</h1>
-            <p className="text-[10px] text-gray-400 leading-tight">Relatório Semanal</p>
-          </div>
+            <div className="flex flex-col leading-tight">
+  <h1 className="text-lg font-extrabold text-gray-800 tracking-tight">
+    Núcleos de Oração
+  </h1>
+
+  <span className="text-xs text-brand-600 font-semibold">
+    Relatório Semanal
+  </span>
+</div>
         </div>
       </header>
 
