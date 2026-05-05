@@ -13,7 +13,7 @@ export default function Layout() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
+        <div className="w-full px-4 py-5 flex items-center gap-4">
           <img src={logo} alt="logo" className="h-24 w-24 object-contain" />          
           <div>
             <div className="flex flex-col leading-tight">
