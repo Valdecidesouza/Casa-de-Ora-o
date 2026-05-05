@@ -1,3 +1,4 @@
+import logo from '../assets/logo.png';
 import { NavLink, Outlet } from 'react-router-dom';
 import { LayoutDashboard, ClipboardList, PlusCircle } from 'lucide-react';
 
@@ -13,11 +14,9 @@ export default function Layout() {
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-sm">⛪</span>
-          </div>
+          <img src={logo} alt="logo" className="h-8 w-8 object-contain" />          
           <div>
-            <h1 className="text-sm font-bold text-gray-800 leading-tight">Casas de Oração</h1>
+            <h1 className="text-sm font-bold text-gray-800 leading-tight">Núcleos de Oração</h1>
             <p className="text-[10px] text-gray-400 leading-tight">Relatório Semanal</p>
           </div>
         </div>
