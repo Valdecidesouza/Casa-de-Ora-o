@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { listLideres, listRelatorios, removeRelatorio } from '../store/api';
-import { formatDate, getSemanas } from '../store/data';
+import { formatDate } from '../store/data';
 
 export default function RelatoriosPage() {
 
@@ -10,21 +10,20 @@ export default function RelatoriosPage() {
   const [error, setError] = useState('');
 
   const [busca, setBusca] = useState('');
-
-  // 🔥 NOVO: edição
   const [editando, setEditando] = useState(null);
 
-  // 🔥 DELETE
+  // 🗑 APAGAR (rápido sem reload)
   async function handleDelete(id) {
     const ok = confirm('Remover?');
     if (!ok) return;
 
     await removeRelatorio(id);
 
+    // 🔥 remove da tela instantâneo
     setRelatorios(r => r.filter(item => item.id !== id));
   }
 
-  // 🔥 LIMPAR TUDO
+  // 🧹 LIMPAR TUDO (rápido)
   async function limparTudo() {
     const ok = confirm("APAGAR TODOS?");
     if (!ok) return;
@@ -34,6 +33,7 @@ export default function RelatoriosPage() {
     setRelatorios([]);
   }
 
+  // 🔄 CARREGAR DADOS
   useEffect(() => {
     (async () => {
       try {
@@ -53,13 +53,15 @@ export default function RelatoriosPage() {
     })();
   }, []);
 
- const filtrados = useMemo(() => {
-  const buscaLower = busca.toLowerCase();
+  // 🔍 FILTRO RÁPIDO
+  const filtrados = useMemo(() => {
+    const buscaLower = busca.toLowerCase();
 
-  return relatorios.filter(r =>
-    r.lider?.toLowerCase().includes(buscaLower)
-  );
-}, [relatorios, busca]);
+    return relatorios.filter(r =>
+      r.lider?.toLowerCase().includes(buscaLower)
+    );
+  }, [relatorios, busca]);
+
   if (loading) return <div>⏳ Carregando...</div>;
   if (error) return <div>{error}</div>;
 
@@ -74,7 +76,6 @@ export default function RelatoriosPage() {
         onChange={e => setBusca(e.target.value)}
       />
 
-      {/* 🔥 BOTÃO LIMPAR TUDO */}
       <button onClick={limparTudo} className="ml-2 text-red-600">
         🧹 Limpar tudo
       </button>
@@ -86,12 +87,12 @@ export default function RelatoriosPage() {
           <p>{relatorio.grupo}</p>
           <p>{formatDate(relatorio.data)}</p>
 
-          {/* 🔥 EDITAR */}
+          {/* ✏️ EDITAR */}
           <button onClick={() => setEditando(relatorio)}>
             ✏️ Editar
           </button>
 
-          {/* 🔥 APAGAR */}
+          {/* 🗑 APAGAR */}
           <button
             onClick={() => handleDelete(relatorio.id)}
             className="text-red-500 ml-2"
@@ -106,7 +107,7 @@ export default function RelatoriosPage() {
       {editando && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
 
-          <div className="bg-white p-4">
+          <div className="bg-white p-4 rounded">
 
             <h2>Editar</h2>
 
@@ -122,13 +123,21 @@ export default function RelatoriosPage() {
             <button
               onClick={async () => {
 
-                await fetch('/api/relatorios', {
+                const res = await fetch('/api/relatorios', {
                   method: 'POST',
                   body: JSON.stringify(editando)
                 });
 
+                const data = await res.json();
+
+                // 🔥 ATUALIZA NA TELA SEM RECARREGAR
+                setRelatorios(old =>
+                  old.map(item =>
+                    item.id === data.relatorio.id ? data.relatorio : item
+                  )
+                );
+
                 setEditando(null);
-            
               }}
             >
               Salvar
