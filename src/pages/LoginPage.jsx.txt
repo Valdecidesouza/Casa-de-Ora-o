@@ -1,0 +1,56 @@
+import { useState } from 'react';
+
+export default function LoginPage({ onLogin }) {
+
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+
+  function entrar() {
+
+    // login padrão
+    if (user === 'admin' && pass === 'admin') {
+      localStorage.setItem('logado', 'true');
+      onLogin();
+      return;
+    }
+
+    alert('Login errado');
+  }
+
+  return (
+    <div style={{
+      height: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}>
+
+      <div style={{ background: '#fff', padding: 20 }}>
+
+        <h2>Login</h2>
+
+        <input
+          placeholder="usuário"
+          onChange={e => setUser(e.target.value)}
+        />
+
+        <br /><br />
+
+        <input
+          placeholder="senha"
+          type="password"
+          onChange={e => setPass(e.target.value)}
+        />
+
+        <br /><br />
+
+        <button onClick={entrar}>
+          Entrar
+        </button>
+
+        <p>admin / admin</p>
+
+      </div>
+    </div>
+  );
+}

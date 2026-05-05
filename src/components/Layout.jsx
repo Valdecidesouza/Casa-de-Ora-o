@@ -1,6 +1,6 @@
 import logo from '../assets/logo.png';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, ClipboardList, PlusCircle } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, PlusCircle, LogOut } from 'lucide-react';
 
 const nav = [
   { to: '/', label: 'Dashboard', Icon: LayoutDashboard },
@@ -9,22 +9,46 @@ const nav = [
 ];
 
 export default function Layout() {
+
+  // 🔥 FUNÇÃO SAIR
+  function sair() {
+    localStorage.removeItem('logado');
+    window.location.reload();
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="w-full px-6 py-3 flex items-center gap-4">
-          <img src={logo} alt="logo" className="h-32 w-32 object-contain" />          
-          <div>
-            <div className="flex flex-col leading-tight">
-  <h1 className="text-lg font-extrabold text-gray-800 tracking-tight">
-    Núcleos de Oração
-  </h1>
+        <div className="w-full px-6 py-6 flex items-center justify-between">
 
-  <span className="text-xs text-brand-600 font-semibold">
-    Relatório Semanal
-  </span>
-</div>
+          {/* 🔥 ESQUERDA (LOGO + TEXTO) */}
+          <div className="flex items-center gap-5">
+
+            <img src={logo} alt="logo" className="h-24 w-24 object-contain" />
+
+            <div className="flex flex-col leading-tight">
+              <h1 className="text-xl font-extrabold text-gray-800 tracking-tight">
+                Núcleos de Oração
+              </h1>
+
+              <span className="text-sm text-brand-600 font-semibold">
+                Relatório Semanal
+              </span>
+            </div>
+
+          </div>
+
+          {/* 🔥 DIREITA (BOTÃO SAIR) */}
+          <button
+            onClick={sair}
+            className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700"
+          >
+            <LogOut size={18} />
+            Sair
+          </button>
+
         </div>
       </header>
 
@@ -53,6 +77,7 @@ export default function Layout() {
           ))}
         </div>
       </nav>
+
     </div>
   );
 }
